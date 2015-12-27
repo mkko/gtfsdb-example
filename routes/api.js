@@ -119,16 +119,16 @@ router.get('/agency/:agency/trip', function(req, res, next) {
 
 router.get('/agency/:agency/stop', function(req, res, next) {
   gtfsdb.getStops(req.params.agency)
-  .then(function(agencies) {
-    res.send(agencies);
+  .then(function(stops) {
+    res.send(stops);
   })
   .catch(next);
 });
 
 router.get('/agency/:agency/stop/:stopId', function(req, res, next) {
   gtfsdb.getStop(req.params.agency, req.params.stopId)
-  .then(function(agencies) {
-    res.send(agencies);
+  .then(function(stop) {
+    res.send(stop);
   })
   .catch(next);
 });
@@ -136,11 +136,16 @@ router.get('/agency/:agency/stop/:stopId', function(req, res, next) {
 //router.get('/agency/:agency/stop/:stopId/timetables', function(req, res, next) {
 //});
 
-router.get('/agency/:agency/stop/:stop/timetables', function(req, res, next) {
-  var agency_key = req.params.agency;
-  gtfsdb.getStopsByAgencyKey(agency_key)
-  .then(function(agencies) {
-    res.send(agencies);
+router.get('/agency/:agency/stop/:stopId/timetables', function(req, res, next) {
+  var agencyKey = req.params.agency;
+  var stopId = req.params.stopId
+
+  Promise.props({
+    stop: gtfsdb.getStop(agencyKey, stopId),
+    stopTimes: gtfsdb.getStopTimes(agencyKey, stopId)
+  })
+  .then(function(data) {
+    res.send(data.stopTimes);
   })
   .catch(next);
 });
